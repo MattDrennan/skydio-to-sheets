@@ -23,6 +23,7 @@ if(isset($_POST['submit'])) {
   // Prepare variables
   $flight_code = $_POST['flight_code'];
   $mission_details = $_POST['mission_details'];
+  $case_number = $_POST['case_number'];
 
   // Prepare POST data
   if($_POST['training_flight'] == 1) {
@@ -30,8 +31,8 @@ if(isset($_POST['submit'])) {
   }
 
   // Prepare and Bind
-  $stmt = $conn->prepare("UPDATE flights SET flight_code = ?, notes = ?, date_updated = NOW() WHERE id = ?");
-  $stmt->bind_param("ssi", $flight_code, $mission_details, $_POST['id']);
+  $stmt = $conn->prepare("UPDATE flights SET flight_code = ?, case_number = ?, notes = ?, date_updated = NOW() WHERE id = ?");
+  $stmt->bind_param("sssi", $flight_code, $case_number, $mission_details, $_POST['id']);
   $stmt->execute();
   $stmt->close();
 
@@ -88,6 +89,7 @@ if(isset($_POST['submit'])) {
         $db->vehicle_serial,
         $db->time,
         $db->flight_code,
+        $db->case_number,
         $db->notes,
       ];
     }
@@ -129,112 +131,131 @@ if(isset($_GET['id'])) {
   if ($result = $stmt->get_result()) {
     while ($db = mysqli_fetch_object($result)) {
       echo '
-      <script type="text/javascript">
-      window.addEventListener("DOMContentLoaded", (event) => {
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Flight Record Edit</title>
 
-        document.querySelector("form").addEventListener("click", function(event) {
-          const radio = document.querySelector("input[name=\'training_flight\']:checked");
-
-          // Show additional forms based on options
-          if(radio) {
-            if(radio.value == 1) {
-              document.querySelector("#mission_details").style.display = "none";
-            } else {
-              document.querySelector("#mission_details").style.display = "inline";
+          <style>
+            body, td, input, textarea {
+              font-size: 24px;
             }
+          </style>
+        </head>
 
-            // Show save button
-            document.querySelector("#submit").style.display = "inline";
-          }
-        });
-      });
-      </script>
+        <body>
+          <script type="text/javascript">
+          window.addEventListener("DOMContentLoaded", (event) => {
 
-      <table border="1" style="margin-left: auto; margin-right: auto;">
-        <tr>
-          <td>Battery Serial</td>
-          <td>'. $db->battery_serial .'</td>
-        </tr>
+            document.querySelector("form").addEventListener("click", function(event) {
+              const radio = document.querySelector("input[name=\'training_flight\']:checked");
 
-        <tr>
-          <td>Flight ID</td>
-          <td>'. $db->flight_id .'</td>
-        </tr>
+              // Show additional forms based on options
+              if(radio) {
+                if(radio.value == 1) {
+                  document.querySelector("#mission_details").style.display = "none";
+                } else {
+                  document.querySelector("#mission_details").style.display = "inline";
+                }
 
-        <tr>
-          <td>Has Telemetry</td>
-          <td>'. $db->has_telemetry .'</td>
-        </tr>
+                // Show save button
+                document.querySelector("#submit").style.display = "inline";
+              }
+            });
+          });
+          </script>
 
-        <tr>
-          <td>Landing</td>
-          <td>'. $db->landing .'</td>
-        </tr>
+          <table border="1" style="margin-left: auto; margin-right: auto;">
+            <tr>
+              <td>Battery Serial</td>
+              <td>'. $db->battery_serial .'</td>
+            </tr>
 
-        <tr>
-          <td>Take Off</td>
-          <td>'. $db->takeoff .'</td>
-        </tr>
+            <tr>
+              <td>Flight ID</td>
+              <td>'. $db->flight_id .'</td>
+            </tr>
 
-        <tr>
-          <td>Take Off Latitude</td>
-          <td>'. $db->takeoff_latitude .'</td>
-        </tr>
+            <tr>
+              <td>Has Telemetry</td>
+              <td>'. $db->has_telemetry .'</td>
+            </tr>
 
-        <tr>
-          <td>Take Off Longitude</td>
-          <td>'. $db->takeoff_longitude .'</td>
-        </tr>
+            <tr>
+              <td>Landing</td>
+              <td>'. $db->landing .'</td>
+            </tr>
 
-        <tr>
-          <td>User E-mail</td>
-          <td>'. $db->user_email .'</td>
-        </tr>
+            <tr>
+              <td>Take Off</td>
+              <td>'. $db->takeoff .'</td>
+            </tr>
 
-        <tr>
-          <td>Vehicle Serial</td>
-          <td>'. $db->vehicle_serial .'</td>
-        </tr>
+            <tr>
+              <td>Take Off Latitude</td>
+              <td>'. $db->takeoff_latitude .'</td>
+            </tr>
 
-        <tr>
-          <td>Time</td>
-          <td>'. $db->time .'</td>
-        </tr>
-      </table>
+            <tr>
+              <td>Take Off Longitude</td>
+              <td>'. $db->takeoff_longitude .'</td>
+            </tr>
 
-      <br />
-      <hr />
-      <br />
+            <tr>
+              <td>User E-mail</td>
+              <td>'. $db->user_email .'</td>
+            </tr>
 
-      <div style="text-align: center;">
-        <form action="" method="POST">
-          <input type="hidden" name="id" value="'. htmlspecialchars($_GET['id']) .'" />
-          <input type="hidden" name="flight_id" value="'. htmlspecialchars($db->flight_id) .'" />
+            <tr>
+              <td>Vehicle Serial</td>
+              <td>'. $db->vehicle_serial .'</td>
+            </tr>
 
-          <p>
-            Is this a training flight?
-          </p>
+            <tr>
+              <td>Time</td>
+              <td>'. $db->time .'</td>
+            </tr>
+          </table>
 
-          <input type="radio" id="training_flight_yes" name="training_flight" value="1">
-          <label for="training_flight_yes">Yes</label>
+          <br />
+          <hr />
+          <br />
 
-          <input type="radio" id="training_flight_no" name="training_flight" value="0">
-          <label for="training_flight_no">No</label>
+          <div style="text-align: center;">
+            <form action="" method="POST">
+              <input type="hidden" name="id" value="'. htmlspecialchars($_GET['id']) .'" />
+              <input type="hidden" name="flight_id" value="'. htmlspecialchars($db->flight_id) .'" />
 
-          <span id="mission_details" style="display: none;">
-            <br /><br />
-            <label for="flight_code">Flight Signal Code:</label>
-            <br />
-            <input type="text" id="flight_code" name="flight_code" value="">
-            <br /><br />
-            <label for="mission_details">Mission Notes:</label>
-            <br />
-            <textarea id="mission_details" name="mission_details" style="width: 50%; height: 200px;"></textarea>
-          </span>
-          <br /><br />
-          <input type="submit" name="submit" id="submit" value="Save!" style="display: none;" />
-        </form>
-      </div>';
+              <p>
+                Is this a training flight?
+              </p>
+
+              <input type="radio" id="training_flight_yes" name="training_flight" value="1">
+              <label for="training_flight_yes">Yes</label>
+
+              <input type="radio" id="training_flight_no" name="training_flight" value="0">
+              <label for="training_flight_no">No</label>
+
+              <span id="mission_details" style="display: none;">
+                <br /><br />
+                <label for="flight_code">Flight Signal Code:</label>
+                <br />
+                <input type="text" id="flight_code" name="flight_code" value="">
+                <br /><br />
+                <label for="case_number">Case Number:</label>
+                <br />
+                <input type="text" id="case_number" name="case_number" value="">
+                <br /><br />
+                <label for="mission_details">Mission Notes:</label>
+                <br />
+                <textarea id="mission_details" name="mission_details" style="width: 50%; height: 200px;"></textarea>
+              </span>
+              <br /><br />
+              <input type="submit" name="submit" id="submit" value="Save!" style="display: none;" />
+            </form>
+          </div>
+        </body>
+      </html>';
     }
   }
 
@@ -267,9 +288,12 @@ try {
 // Get JSON flight data from Skydio API
 $objFlight = json_decode($response->getBody());
 
+// Must convert to int before inserting
+$has_telemetry = intval($objFlight->data->flight->has_telemetry);
+
 // Prepare and Bind
 $stmt = $conn->prepare("INSERT INTO flights (battery_serial, flight_id, has_telemetry, landing, takeoff, takeoff_latitude, takeoff_longitude, user_email, vehicle_serial, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssisssssss", $objFlight->data->flight->battery_serial, $objFlight->data->flight->flight_id, (int) $objFlight->data->flight->has_telemetry, $objFlight->data->flight->landing, $objFlight->data->flight->takeoff, $objFlight->data->flight->takeoff_latitude, $objFlight->data->flight->takeoff_longitude, $objFlight->data->flight->user_email, $objFlight->data->flight->vehicle_serial, $objFlight->meta->time);
+$stmt->bind_param("ssisssssss", $objFlight->data->flight->battery_serial, $objFlight->data->flight->flight_id, $has_telemetry, $objFlight->data->flight->landing, $objFlight->data->flight->takeoff, $objFlight->data->flight->takeoff_latitude, $objFlight->data->flight->takeoff_longitude, $objFlight->data->flight->user_email, $objFlight->data->flight->vehicle_serial, $objFlight->meta->time);
 $stmt->execute();
 $last_id = $conn->insert_id;
 $stmt->close();
