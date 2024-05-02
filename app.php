@@ -302,9 +302,9 @@ $conn->close();
 // Send e-mail to user to notify them of action required
 $email = new \SendGrid\Mail\Mail(); 
 $email->setFrom("noreply@uasmanage.com", "No Reply");
-$email->setSubject("Flight Recorded. Action required!");
+$email->setSubject("Flight ID " . $last_id . " Recorded. Action required!");
 $email->addTo($objFlight->data->flight->user_email, "Pilot");
-$email->addContent("text/plain", "Please tag your flight here: https://uasmanage.com/service/lcso/app.php?id=" . $last_id);
+$email->addContent("text/plain", "Please tag your flight ID " . $last_id . " here: https://uasmanage.com/service/lcso/app.php?id=" . $last_id);
 $sendgrid = new \SendGrid($_ENV['SENDGRID_API_KEY']);
 try {
   $response = $sendgrid->send($email);
