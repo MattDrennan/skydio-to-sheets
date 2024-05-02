@@ -27,6 +27,6 @@ SENDGRID_API_KEY=""
 
 Edit the values appropriately.
 
-##Follow this tutorial to set up Google Sheets API:
+## Follow this tutorial to set up Google Sheets API:
 
 https://www.nidup.io/blog/manipulate-google-sheets-in-php-with-api
