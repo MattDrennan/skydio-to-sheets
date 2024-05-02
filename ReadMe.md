@@ -8,7 +8,7 @@ This script will put Skydio flight data into a Google Sheets document. The fligh
 -SendGrid API Key\
 -Google Sheets API Key\
 -PHP\
--MySQL\
+-MySQL
 
 
 ## Setup
